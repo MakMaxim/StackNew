@@ -8,10 +8,12 @@ fs.createReadStream('Показания.csv')
    .on('data', (data) => results.push(data))
    .on('end', () => {
       // ============================= Задание 2.1 =========================================================
+      let months = ['Апрель-Май', 'Май-Июнь'];
       let task1 = results.slice(0);
       task1.map(function (e, i) {
-         e['Апрель-Май'] = +e.Апрель + +e.Май;
-         e['Май-Июнь'] = +e.Май + +e.Июнь;
+         months.forEach(function (m) {
+            e[m] = +e[m.split('-')[1]] - +e[m.split('-')[0]];
+         });
          e['№ строки'] = i + 1; // Иначе столбец '№ строки' в файле Начисления_абоненты.csv почему-то пустой
       });
       const csvWriter = createCsvWriter({
@@ -37,7 +39,6 @@ fs.createReadStream('Показания.csv')
          ...new Set(task1.slice(0).map((e) => e.Улица + ' ' + e['№ дома'])),
       ];
       let task2 = [];
-      let months = ['Апрель-Май', 'Май-Июнь', 'Апрель', 'Май', 'Июнь'];
       let number = 1;
       houses.forEach(function (house) {
          let val = [];
@@ -68,13 +69,9 @@ fs.createReadStream('Показания.csv')
             '№ дома': house.split(' ')[1],
             [months[0]]: val[0],
             [months[1]]: val[1],
-            [months[2]]: val[2],
-            [months[3]]: val[3],
-            [months[4]]: val[4],
          });
          number++;
       });
-      console.log(task2);
       const csvWriter2 = createCsvWriter({
          path: 'Правильность_показаний.csv',
          header: [
@@ -83,9 +80,6 @@ fs.createReadStream('Показания.csv')
             { id: '№ дома', title: '№ дома' },
             { id: 'Апрель-Май', title: 'Апрель-Май' },
             { id: 'Май-Июнь', title: 'Май-Июнь' },
-            { id: 'Апрель', title: 'Апрель' },
-            { id: 'Май', title: 'Май' },
-            { id: 'Июнь', title: 'Июнь' },
          ],
          fieldDelimiter: ';',
       });
